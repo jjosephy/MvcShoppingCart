@@ -22,13 +22,13 @@ namespace MvcShoppingCart.Exceptions
         {
         }
 
-        public static HttpResponseException ItemAlreadyExistsInCartException()
+        public static HttpResponseException ItemAlreadyExistsInCart()
         {
             const string message = "Item already exists in the cart. Use PUT to update cart.";
             return new CartException(message, ErrorCodes.InvalidCartItem, HttpStatusCode.BadRequest);
         }
 
-        public static HttpResponseException InvalidCartItemException()
+        public static HttpResponseException InvalidCartItem()
         {
             const string message = "Item passed to the cart is invalid";
             return new CartException(message, ErrorCodes.InvalidCartItem, HttpStatusCode.BadRequest);
@@ -46,13 +46,19 @@ namespace MvcShoppingCart.Exceptions
             return new CartException(message, ErrorCodes.InvalidAuthorizationHeader, HttpStatusCode.Forbidden);
         }
 
-        public static HttpResponseException UnexpectedCartException(string exceptionMessage)
+        public static HttpResponseException UnexpectedCart(string exceptionMessage)
         {
             const string message = "Unexpected Cart Exception occurred";
             return new CartException(
                 string.Format("{0}:{1}", message, exceptionMessage),
                 ErrorCodes.UnexpectedError, 
                 HttpStatusCode.InternalServerError);
+        }
+
+        public static HttpResponseException UserHasNoItemsInCart()
+        {
+            const string message = "User has no items in cart";
+            return new CartException(message, ErrorCodes.UserHasNoItemsInCart, HttpStatusCode.NotFound);
         }
 
         static HttpResponseMessage CreateMessage(

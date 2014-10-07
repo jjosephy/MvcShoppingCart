@@ -29,16 +29,27 @@ namespace MvcShoppingCart.Controllers
         /// <returns>A list of all items in the cart</returns>
         public Task<HttpResponseMessage> Get()
         {
-            var content =  new string[]
-            {
-                 "Hello",
-                 "World"
-            };
+            var authToken = this.Request.Headers.GetAuthorizationHeader();
+            var version = this.Request.Headers.GetVersionRequestHeader();
 
-            return Task.FromResult(new HttpResponseMessage
+            var items = new Dictionary<Guid, CartItemModel>();
+            if (!cartItems.TryGetValue(authToken, out items))
             {
-                Content = new JsonContent<string[]>(content)
-            });
+                throw CartException.UserHasNoItemsInCart();
+            }
+
+            var returnMessage = new HttpResponseMessage();
+            switch (version)
+            {
+                case 1:
+                    var userItems = items.Select(fx => fx.Value);
+                    break;
+                
+                default:
+                    throw CartException.InvalidVersionHeader();
+            }
+
+            return Task.FromResult(returnMessage);
         }
 
         /// <summary>
@@ -52,20 +63,22 @@ namespace MvcShoppingCart.Controllers
             CartItemBase cartRequestBody = null;
             var returnMessage = new HttpResponseMessage();
 
+            var bodyContent = await this.Request.Content.ReadAsStringAsync();
             switch (version)
             {
                 case 1:
-                    cartRequestBody = JsonConvert.DeserializeObject<CartItemV1>(
-                        await this.Request.Content.ReadAsStringAsync());
+                    cartRequestBody = JsonConvert.DeserializeObject<CartItemV1>(bodyContent);
                     break;
                 case 2:
+                    cartRequestBody = JsonConvert.DeserializeObject<CartItemV2>(bodyContent);
+                    break;
                 default:
                     throw CartException.InvalidVersionHeader();
             }
 
             if (cartRequestBody == null)
             {
-                throw CartException.InvalidCartItemException();
+                throw CartException.InvalidCartItem();
             }
 
             var userItems = default(Dictionary<Guid, CartItemModel>);
@@ -77,27 +90,29 @@ namespace MvcShoppingCart.Controllers
 
             if (userItems.ContainsKey(cartRequestBody.Id))
             {
-                throw CartException.ItemAlreadyExistsInCartException();
+                throw CartException.ItemAlreadyExistsInCart();
             }
             else
             {
+                var item = default(CartItemBase);
                 switch (version)
                 {
                     case 1:
-                        var item = cartRequestBody as CartItemV1;
-                        userItems.Add(item.Id, item.ToModel());
+                        item = cartRequestBody as CartItemV1;
+                        returnMessage = new HttpResponseMessage
+                        {
+                            Content = new JsonContent<CartItemV1>(item as CartItemV1)
+                        };
+                        break;
+                    case 2:
+                        item = cartRequestBody as CartItemV2;
+                        returnMessage = new HttpResponseMessage
+                        {
+                            Content = new JsonContent<CartItemV2>(item as CartItemV2)
+                        };
                         break;
                 }
-            }
-
-            switch (version)
-            {
-                case 1:
-                    returnMessage = new HttpResponseMessage
-                    {
-                        Content = new JsonContent<CartItemV1>(cartRequestBody as CartItemV1)
-                    };
-                    break;
+                userItems.Add(item.Id, item.ToModel());
             }
 
             return returnMessage;

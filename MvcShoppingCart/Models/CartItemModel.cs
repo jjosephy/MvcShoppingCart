@@ -28,5 +28,14 @@ namespace MvcShoppingCart.Models
             get;
             set;
         }
+
+        /// <summary>
+        /// Color Property - added for V2 contract
+        /// </summary>
+        public string Color
+        {
+            get;
+            set;
+        }
     }
 }

@@ -118,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contracts\CartItemBase.cs" />
+    <Compile Include="Contracts\V2\CartItemV2.cs" />
     <Compile Include="Controllers\CartController.cs" />
     <Compile Include="Controllers\ControllerBase.cs" />
     <Compile Include="Exceptions\CartException.cs" />

@@ -11,11 +11,17 @@ using MvcShoppingCart.Tests.Extensions;
 
 namespace MvcShoppingCart.Tests.Owin
 {
+    /// <summary>
+    /// TODO: Refactor this as a singleton
+    /// Class that serves as an in memory host server as well as provides client hooks to 
+    /// fire requests through the server.
+    /// </summary>
     public class TestHost : IDisposable
     {
         const string CartApi = "http://testserver/api/cart";
         const string ApiVersion = "x-api-version";
         const string Authorization = "authorization";
+        const string TestUser = "TestUser";
 
         readonly TestServer server;
 
@@ -26,7 +32,7 @@ namespace MvcShoppingCart.Tests.Owin
 
         public async Task<HttpResponseMessage> CreateRequestAsync<T>(
             HttpMethod method, 
-            string authToken, 
+            string authToken = TestUser, 
             T value = default(T),
             string uri = CartApi,
             uint version = 1)
@@ -35,7 +41,7 @@ namespace MvcShoppingCart.Tests.Owin
             {
                 client.DefaultRequestHeaders.Add(ApiVersion, version.ToString());
                 client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("XToken", TestUtilty.Base64Encode(authToken));
+                    new AuthenticationHeaderValue("APIToken", TestUtilty.Base64Encode(authToken));
 
                 if (method == HttpMethod.Get)
                 {

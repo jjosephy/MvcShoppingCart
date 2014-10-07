@@ -8,7 +8,10 @@
 *.pdb
 *.dll.config
 *.cache
-*.suo
+*.xml
+*.nupkg
+*.web.config.transform
+*.txt
 # Include dlls if they’re in the NuGet packages directory
 !/packages/*/lib/*.dll
 # Include dlls if they're in the CommonReferences directory
@@ -57,3 +60,9 @@ TestResults/
 ehthumbs.db
 Icon?
 Thumbs.db
+*.transform
+*.suo
+MvcShoppingCart.v12.suo
+MvcShoppingCart.v12.suo
+packages/Newtonsoft.Json.6.0.5/tools/install.ps1
+MvcShoppingCart.v12.suo

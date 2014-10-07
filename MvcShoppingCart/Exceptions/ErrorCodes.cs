@@ -21,7 +21,6 @@ namespace MvcShoppingCart.Exceptions
         /// </summary>
         public static uint UnexpectedError { get { return 0; } }
 
-
         #region BadRequest (401) Errors
         /// <summary>
         /// Used when an Invalid Cart Item is encountered
@@ -44,6 +43,10 @@ namespace MvcShoppingCart.Exceptions
         /// Used when trying to add an item to the cart that already exists
         /// </summary>
         public static uint InvalidAuthorizationHeader { get { return 2000; } }
+        #endregion
+
+        #region Not Found (404) Errors
+        public static uint UserHasNoItemsInCart { get { return 3000; } }
         #endregion
     }
 }

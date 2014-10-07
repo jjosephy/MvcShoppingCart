@@ -26,13 +26,13 @@ namespace MvcShoppingCart.Tests
     public class CartTestsV1
     {
         static TestHost host;
-        static string authToken;
+        static string authUserName;
 
         [ClassInitialize()]
         public static void MyClassInitialize(TestContext testContext) 
         {
             host = new TestHost();
-            authToken = TestUtilty.GenerateRandomString();
+            authUserName = "TestUser";
         }
 
         [ClassCleanup()]
@@ -56,7 +56,7 @@ namespace MvcShoppingCart.Tests
 
             var response = await host.CreateRequestAsync<CartItemV1>(
                 HttpMethod.Post,
-                authToken,
+                authUserName,
                 item);
 
             Assert.IsTrue(response.StatusCode == HttpStatusCode.OK, "Status Codes do not match");
@@ -87,8 +87,8 @@ namespace MvcShoppingCart.Tests
         public async Task CartTest_TestAddInvalidItemToCartV1()
         {
             var response = await host.CreateRequestAsync<CartItemV1>(
-                HttpMethod.Post, 
-                authToken,
+                HttpMethod.Post,
+                authUserName,
                 null);
 
             Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest, "Status Codes do not match");
@@ -101,10 +101,32 @@ namespace MvcShoppingCart.Tests
         }
 
         [TestMethod]
-        public async Task CartTest_TestGetCartV1()
+        public async Task CartTest_TestAddThenGetCartV1()
         {
-            var response = await host.CreateRequestAsync<string>(HttpMethod.Get, authToken);
+            var itemId = Guid.NewGuid();
+            var item = new CartItemV1
+            {
+                Description = "Test Description",
+                Id = itemId,
+                Quantity = 4
+            };
+
+            var response = await host.CreateRequestAsync<CartItemV1>(
+                HttpMethod.Post,
+                authUserName,
+                item);
+
+            response = await host.CreateRequestAsync<string>(HttpMethod.Get, authUserName);
             var result = await response.Content.ReadAsStringAsync();
         }
+
+        // Need to implement Delete Cart for this to work
+        //[TestMethod]
+        //public async Task CartTest_TestNoItemsInCartException()
+        //{
+        //    var response = await host.CreateRequestAsync<string>(HttpMethod.Get);
+        //    var result = await response.Content.ReadAsStringAsync();
+        //    Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound, "Status Codes do not match");
+        //}
     }
 }

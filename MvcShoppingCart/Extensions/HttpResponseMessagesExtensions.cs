@@ -13,30 +13,31 @@ namespace MvcShoppingCart.Extensions
 {
     public static class HttpResponseMessagesExtensions
     {
-        const string versionHeader = "x-api-version";
-        const string authorization = "authorization";
+        const string VersionHeader = "x-api-version";
+        const string Authorization = "authorization";
+        const string AuthenticationHeader = "apitoken";
 
         public static string GetAuthorizationHeader(this HttpRequestHeaders headers)
         {
             var authHeader = headers.Where(header =>
-                   header.Key.Equals(authorization, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                   header.Key.Equals(Authorization, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             var exception = CartException.InvalidAuthorizationHeader();
             ValidateHeader(authHeader, exception);
 
             var headerValue = authHeader.Value.FirstOrDefault().Split(' ');
-            if (headerValue.Count() != 2)
+            if (headerValue.Count() != 2 || 
+                !headerValue[0].Equals(AuthenticationHeader, StringComparison.OrdinalIgnoreCase))
             {
                 throw exception;
             }
 
-            var bytes = Convert.FromBase64String(headerValue[1]);
-            return Encoding.UTF8.GetString(bytes);
+            return headerValue[1];
         }
 
         public static uint GetVersionRequestHeader(this HttpRequestHeaders headers)
         {
             var version = headers.Where(header =>
-                   header.Key.Equals(versionHeader, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                   header.Key.Equals(VersionHeader, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             ValidateHeader(version, CartException.InvalidVersionHeader());
 
             uint parsed = 0;
