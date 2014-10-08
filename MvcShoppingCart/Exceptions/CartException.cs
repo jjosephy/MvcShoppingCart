@@ -66,7 +66,6 @@ namespace MvcShoppingCart.Exceptions
             uint errorCode,
             HttpStatusCode statusCode)
         {
-
             return new HttpResponseMessage
             {
                 Content = new JsonContent<ErrorDetailsV1>(

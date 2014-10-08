@@ -45,11 +45,15 @@ namespace MvcShoppingCart.Tests.Owin
 
                 if (method == HttpMethod.Get)
                 {
-                    return await client.GetAsync(CartApi);
+                    return await client.GetAsync(uri);
                 }
                 else if (method == HttpMethod.Post)
                 {
-                    return await client.PostAsJsonAsync<T>(CartApi, value);
+                    return await client.PostAsJsonAsync<T>(uri, value);
+                }
+                else if (method == HttpMethod.Delete)
+                {
+                    return await client.DeleteAsync(uri);
                 }
             }
 

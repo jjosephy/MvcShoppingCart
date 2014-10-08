@@ -29,17 +29,15 @@ namespace MvcShoppingCart.Controllers
         /// <returns>A list of all items in the cart</returns>
         public Task<HttpResponseMessage> Get()
         {
-            var authToken = this.Request.Headers.GetAuthorizationHeader();
-            var version = this.Request.Headers.GetVersionRequestHeader();
-
+            var cartContext = this.CreateCartContext();
             var items = new Dictionary<Guid, CartItemModel>();
-            if (!cartItems.TryGetValue(authToken, out items))
+            if (!cartItems.TryGetValue(cartContext.UserToken, out items))
             {
                 throw CartException.UserHasNoItemsInCart();
             }
 
             var returnMessage = new HttpResponseMessage();
-            switch (version)
+            switch (cartContext.Version)
             {
                 case 1:
                     var userItems = items.Select(fx => fx.Value);
@@ -58,13 +56,12 @@ namespace MvcShoppingCart.Controllers
         /// <returns>Returns the item that was added.</returns>
         public async Task<HttpResponseMessage> Post()
         {
-            var authToken = this.Request.Headers.GetAuthorizationHeader();
-            var version = this.Request.Headers.GetVersionRequestHeader();
+            var cartContext = this.CreateCartContext();
             CartItemBase cartRequestBody = null;
             var returnMessage = new HttpResponseMessage();
 
             var bodyContent = await this.Request.Content.ReadAsStringAsync();
-            switch (version)
+            switch (cartContext.Version)
             {
                 case 1:
                     cartRequestBody = JsonConvert.DeserializeObject<CartItemV1>(bodyContent);
@@ -82,10 +79,10 @@ namespace MvcShoppingCart.Controllers
             }
 
             var userItems = default(Dictionary<Guid, CartItemModel>);
-            if (!cartItems.TryGetValue(authToken, out userItems))
+            if (!cartItems.TryGetValue(cartContext.UserToken, out userItems))
             {
                 userItems = new Dictionary<Guid,CartItemModel>();
-                cartItems.Add(authToken, userItems);
+                cartItems.Add(cartContext.UserToken, userItems);
             }
 
             if (userItems.ContainsKey(cartRequestBody.Id))
@@ -95,7 +92,7 @@ namespace MvcShoppingCart.Controllers
             else
             {
                 var item = default(CartItemBase);
-                switch (version)
+                switch (cartContext.Version)
                 {
                     case 1:
                         item = cartRequestBody as CartItemV1;
@@ -116,6 +113,37 @@ namespace MvcShoppingCart.Controllers
             }
 
             return returnMessage;
+        }
+
+        /// <summary>
+        /// Handler for deleting all items in the cart
+        /// </summary>
+        /// <returns>An HttpResponseMessage that signals status</returns>
+        public async Task<HttpResponseMessage> Delete()
+        {
+            var cartContext = this.CreateCartContext();
+
+            var items = new Dictionary<Guid,CartItemModel>();
+            if (!cartItems.TryGetValue(cartContext.UserToken, out items))
+            {
+                throw CartException.UserHasNoItemsInCart();
+            }
+
+            cartItems.Remove(cartContext.UserToken);
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        }
+
+        /// <summary>
+        /// Deletes a specific item in the cart
+        /// </summary>
+        /// <param name="itemId">The item id of the item to delete</param>
+        /// <returns>An HttpResponseMessage that signals status</returns>
+        [Route("api/cart/{itemId}")]
+        public async Task<HttpResponseMessage> Delete(Guid itemId)
+        {
+            
+
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
     }
 }

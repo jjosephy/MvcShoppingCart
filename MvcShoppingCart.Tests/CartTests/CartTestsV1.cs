@@ -120,13 +120,27 @@ namespace MvcShoppingCart.Tests
             var result = await response.Content.ReadAsStringAsync();
         }
 
-        // Need to implement Delete Cart for this to work
-        //[TestMethod]
-        //public async Task CartTest_TestNoItemsInCartException()
-        //{
-        //    var response = await host.CreateRequestAsync<string>(HttpMethod.Get);
-        //    var result = await response.Content.ReadAsStringAsync();
-        //    Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound, "Status Codes do not match");
-        //}
+        [TestMethod]
+        public async Task CartTest_TestDeleteItemFromCart()
+        {
+            // Delete all cart items to ensure there are no items in cart
+            var response = await host.CreateRequestAsync<string>(
+                HttpMethod.Delete,
+                uri: "http://testserver/api/cart/123");
+
+            var result = await response.Content.ReadAsStringAsync();
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound, "Status Codes do not match");
+        }
+
+        [TestMethod]
+        public async Task CartTest_TestNoItemsInCartExceptionV1()
+        {
+            // Delete all cart items to ensure there are no items in cart
+            var response = await host.CreateRequestAsync<string>(HttpMethod.Delete);
+            var result = await response.Content.ReadAsStringAsync();
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound, "Status Codes do not match");
+        }
+
+        //TODO: need a test for passing no auth or version header
     }
 }

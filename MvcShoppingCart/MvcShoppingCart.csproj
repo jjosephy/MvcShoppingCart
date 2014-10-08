@@ -123,6 +123,7 @@
     <Compile Include="Controllers\ControllerBase.cs" />
     <Compile Include="Exceptions\CartException.cs" />
     <Compile Include="Exceptions\ErrorCodes.cs" />
+    <Compile Include="Extensions\ApiControllerExtensions.cs" />
     <Compile Include="Extensions\HttpResponseMessagesExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -133,6 +134,8 @@
     <Compile Include="Models\CartItemModel.cs" />
     <Compile Include="Owin\ShoppingCartMiddleWare.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Extensions\ICartRequestContext.cs" />
+    <Compile Include="Extensions\CartRequestContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\FilterConfig.cs" />
