@@ -12,22 +12,52 @@ using MvcShoppingCart.Tests.Extensions;
 namespace MvcShoppingCart.Tests.Owin
 {
     /// <summary>
-    /// TODO: Refactor this as a singleton
     /// Class that serves as an in memory host server as well as provides client hooks to 
     /// fire requests through the server.
     /// </summary>
-    public class TestHost : IDisposable
+    public sealed class TestHost : IDisposable
     {
-        const string CartApi = "http://testserver/api/cart";
+        const string CartApiServer = "http://www.TemporaryTestServer.com";
+        const string CartApi = "/api/cart";
         const string ApiVersion = "x-api-version";
         const string Authorization = "authorization";
         const string TestUser = "TestUser";
 
         readonly TestServer server;
+        readonly HttpClient client;
 
-        public TestHost()
+        static volatile TestHost host;
+        static readonly object syncRoot = new object();
+
+        private TestHost()
         {
-            server = TestServer.Create<OwinTestConfiguration>();
+            this.server = TestServer.Create<OwinTestConfiguration>();
+            this.client = new HttpClient(this.server.Handler)
+            {
+                BaseAddress = new Uri(CartApiServer)
+            };
+        }
+
+        /// <summary>
+        /// Server instance
+        /// </summary>
+        public static TestHost Server
+        {
+            get
+            {
+                if (host == null)
+                {
+                    lock (syncRoot)
+                    {
+                        if (host == null)
+                        {
+                            host = new TestHost();
+                        }
+                    }
+                }
+
+                return host;
+            }
         }
 
         public async Task<HttpResponseMessage> CreateRequestAsync<T>(
@@ -37,24 +67,21 @@ namespace MvcShoppingCart.Tests.Owin
             string uri = CartApi,
             uint version = 1)
         {
-            using (var client = new HttpClient(server.Handler))
-            {
-                client.DefaultRequestHeaders.Add(ApiVersion, version.ToString());
-                client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("APIToken", TestUtilty.Base64Encode(authToken));
+            client.DefaultRequestHeaders.Add(ApiVersion, version.ToString());
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("APIToken", TestUtilty.Base64Encode(authToken));
 
-                if (method == HttpMethod.Get)
-                {
-                    return await client.GetAsync(uri);
-                }
-                else if (method == HttpMethod.Post)
-                {
-                    return await client.PostAsJsonAsync<T>(uri, value);
-                }
-                else if (method == HttpMethod.Delete)
-                {
-                    return await client.DeleteAsync(uri);
-                }
+            if (method == HttpMethod.Get)
+            {
+                return await client.GetAsync(uri);
+            }
+            else if (method == HttpMethod.Post)
+            {
+                return await client.PostAsJsonAsync<T>(uri, value);
+            }
+            else if (method == HttpMethod.Delete)
+            {
+                return await client.DeleteAsync(uri);
             }
 
             throw new NotSupportedException("Method not supported");
@@ -62,19 +89,17 @@ namespace MvcShoppingCart.Tests.Owin
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
+            if ( server != null )
             {
-                if (server != null)
-                {
-                    server.Dispose();
-                }
-            } 
+                server.Dispose();
+            }
+
+            if ( client != null )
+            {
+                client.Dispose();
+            }
+
+            GC.SuppressFinalize(this);
         }
     }
 }

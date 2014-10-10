@@ -119,7 +119,7 @@ namespace MvcShoppingCart.Controllers
         /// Handler for deleting all items in the cart
         /// </summary>
         /// <returns>An HttpResponseMessage that signals status</returns>
-        public async Task<HttpResponseMessage> Delete()
+        public HttpResponseMessage Delete()
         {
             var cartContext = this.CreateCartContext();
 
@@ -129,20 +129,49 @@ namespace MvcShoppingCart.Controllers
                 throw CartException.UserHasNoItemsInCart();
             }
 
+            if (!cartItems.ContainsKey(cartContext.UserToken))
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent("item not in user collection exception")
+                    });
+            }
+
             cartItems.Remove(cartContext.UserToken);
             return new HttpResponseMessage(HttpStatusCode.OK);
         }
 
-        /// <summary>
-        /// Deletes a specific item in the cart
-        /// </summary>
-        /// <param name="itemId">The item id of the item to delete</param>
-        /// <returns>An HttpResponseMessage that signals status</returns>
-        [Route("api/cart/{itemId}")]
-        public async Task<HttpResponseMessage> Delete(Guid itemId)
+        public HttpResponseMessage Delete(string id)
         {
-            
+            var cartContext = this.CreateCartContext();
 
+            var items = new Dictionary<Guid,CartItemModel>();
+            if (!cartItems.TryGetValue(cartContext.UserToken, out items))
+            {
+                throw CartException.UserHasNoItemsInCart();
+            }
+
+            Guid itemId = Guid.Empty;
+            if (!Guid.TryParse(id, out itemId))
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent("invalid item id exception")
+                    });
+            }
+
+            if (!cartItems[cartContext.UserToken].ContainsKey(itemId))
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent("item not in user collection exception")
+                    });
+            }
+
+            cartItems[cartContext.UserToken].Remove(itemId);
             return new HttpResponseMessage(HttpStatusCode.OK);
         }
     }
