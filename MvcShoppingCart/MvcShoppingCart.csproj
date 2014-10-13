@@ -8,7 +8,7 @@
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{74131753-7AF1-4FDD-8B94-1A33A3834F76}</ProjectGuid>
-    <ProjectTypeGuids>{E3E379DF-F4C6-4180-9B81-6769533ABE47};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MvcShoppingCart</RootNamespace>
@@ -54,6 +54,9 @@
     </Reference>
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceEventLogging">
+      <HintPath>..\ext\ServiceEventLogging.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -131,6 +134,8 @@
     <Compile Include="HttpContentFormatter\JsonContent.cs" />
     <Compile Include="Contracts\V1\CartItemV1.cs" />
     <Compile Include="Contracts\V1\ErrorDetailsV1.cs" />
+    <Compile Include="Logging\CartServiceEventLogger.cs" />
+    <Compile Include="Logging\EventId.cs" />
     <Compile Include="Models\CartItemModel.cs" />
     <Compile Include="Owin\ShoppingCartMiddleWare.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

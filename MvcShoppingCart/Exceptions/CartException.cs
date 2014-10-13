@@ -9,6 +9,7 @@ using System.Web.Http;
 using MvcShoppingCart.HttpContentFormatter;
 using MvcShoppingCart.Contracts;
 using Newtonsoft.Json;
+using MvcShoppingCart.Logging;
 
 namespace MvcShoppingCart.Exceptions
 {
@@ -20,12 +21,6 @@ namespace MvcShoppingCart.Exceptions
             HttpStatusCode statusCode = HttpStatusCode.OK) :
                 base(CreateMessage(message, errorCode, statusCode))
         {
-        }
-
-        public static HttpResponseException ItemAlreadyExistsInCart()
-        {
-            const string message = "Item already exists in the cart. Use PUT to update cart.";
-            return new CartException(message, ErrorCodes.InvalidCartItem, HttpStatusCode.BadRequest);
         }
 
         public static HttpResponseException InvalidCartItem()

@@ -12,23 +12,6 @@ namespace MvcShoppingCart.Tests.CartTests
     [TestClass]
     public class CartTestsV2
     {
-        static TestHost host;
-
-        [ClassInitialize()]
-        public static void MyClassInitialize(TestContext testContext)
-        {
-            host = new TestHost();
-        }
-
-        [ClassCleanup()]
-        public static void MyClassCleanup()
-        {
-            if ( host != null )
-            {
-                host.Dispose();
-            }
-        }
-
         [TestMethod]
         public async Task CartTest_TestAddItemCartV2()
         {
@@ -40,8 +23,9 @@ namespace MvcShoppingCart.Tests.CartTests
                 Quantity = 4,
                 Color = "Blue"
             };
+            
 
-            var response = await host.CreateRequestAsync<CartItemV2>(
+            var response = await TestHost.Server.CreateRequestAsync<CartItemV2>(
                 HttpMethod.Post,
                 value: item, 
                 version: 2);

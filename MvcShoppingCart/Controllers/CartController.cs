@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,6 +11,7 @@ using MvcShoppingCart.Contracts;
 using MvcShoppingCart.Exceptions;
 using MvcShoppingCart.Extensions;
 using MvcShoppingCart.HttpContentFormatter;
+using MvcShoppingCart.Logging;
 using MvcShoppingCart.Models;
 using Newtonsoft.Json;
 
@@ -56,6 +58,11 @@ namespace MvcShoppingCart.Controllers
         /// <returns>Returns the item that was added.</returns>
         public async Task<HttpResponseMessage> Post()
         {
+            const string MethodName = "CartService_Post";
+            var correlationId = Guid.NewGuid();
+            var stopWatch = Stopwatch.StartNew();
+            CartServiceEventLogger.Instance.LogMethodStartEvent(correlationId, MethodName, stopWatch.ElapsedTicks);
+
             var cartContext = this.CreateCartContext();
             CartItemBase cartRequestBody = null;
             var returnMessage = new HttpResponseMessage();
@@ -75,6 +82,7 @@ namespace MvcShoppingCart.Controllers
 
             if (cartRequestBody == null)
             {
+                CartServiceEventLogger.Instance.LogInvalidCartItemEvent(correlationId, "CartService_Post");
                 throw CartException.InvalidCartItem();
             }
 
@@ -87,7 +95,7 @@ namespace MvcShoppingCart.Controllers
 
             if (userItems.ContainsKey(cartRequestBody.Id))
             {
-                throw CartException.ItemAlreadyExistsInCart();
+                userItems[cartRequestBody.Id].Quantity++;
             }
             else
             {
@@ -112,6 +120,7 @@ namespace MvcShoppingCart.Controllers
                 userItems.Add(item.Id, item.ToModel());
             }
 
+            CartServiceEventLogger.Instance.LogMethodEndEvent(correlationId, MethodName, stopWatch.ElapsedTicks);
             return returnMessage;
         }
 
