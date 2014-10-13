@@ -13,7 +13,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MvcShoppingCart.Controllers;
 using MvcShoppingCart.Contracts;
 using MvcShoppingCart.Exceptions;
-using MvcShoppingCart.Owin;
 using MvcShoppingCart.Tests.Extensions;
 using MvcShoppingCart.Tests.Owin;
 using Newtonsoft.Json;

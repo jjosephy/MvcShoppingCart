@@ -1,4 +1,4 @@
-﻿using MvcShoppingCart.Owin;
+﻿
 using Owin;
 using System;
 using System.Collections.Generic;
@@ -17,7 +17,6 @@ namespace MvcShoppingCart.Tests.Owin
     {
         public void Configuration(IAppBuilder app)
         {
-            app.Use(typeof(ShoppingCartMiddleWare));
             var config = new HttpConfiguration();
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
